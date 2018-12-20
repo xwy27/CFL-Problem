@@ -68,15 +68,6 @@ Instance::Instance(string filePath) {
 	            this->allocate_cost[i][j] = temp;
 	        }
 	    }
-	    
-	    for (int i = 0; i < this->facility_num; ++i) {
-	        this->allocate_cost[i].resize(this->customer_num);
-	        for (int j = 0; j < this->customer_num; ++j) {
-	            // read allocating cost
-	            cout << this->allocate_cost[i][j] << " ";
-	        }
-	        cout << endl;
-	    }
 	    cout << "done!" << endl;
 	
 	    fclose(fp);

@@ -1,8 +1,6 @@
 #ifndef GENEALGORITHM
 #define GENEALGORITHM
 
-#define DEBUG false
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -118,7 +116,7 @@ void GeneAlgorithm::CrossAndMutate(vector<int> &capicity, vector<int> &open, vec
     std::random_shuffle(this->population.begin(), this->population.end());
     #if DEBUG
 	for (int i = 0; i < this->population.size(); ++i) {
-    	cout << "population-" << i << ":" << this->population[i].getCost(open, allocate, capicity) << endl;
+    	cout << "population-" << i << ":" << this->population[i].getCost(open, allocate, capicity, demand) << endl;
     }
 	#endif
 }

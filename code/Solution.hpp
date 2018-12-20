@@ -53,9 +53,9 @@ Solution::Solution(vector<int> &v, int facilityNum) {
 bool Solution::isValid(vector<int> &capicity, vector<int> &demand) {
     int size = capicity.size();
     for (int i = 0; i < size; ++i) {
-        this->serving[i] = 0;
-    }
-    
+    	this->serving[i] = 0;
+	}
+
     size = this->allocate.size();
     for (int i = 0; i < size; ++i) {
         this->serving[this->allocate[i]-1] += demand[i];
