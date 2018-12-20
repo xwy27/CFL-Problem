@@ -101,6 +101,9 @@ void performHC(Instance &instance, int index, FILE* result) {
 	time_t start = time(nullptr);
 	cout << "Start HC..." << endl;
 	Solution curNode(instance.facility_num, instance.customer_num);
+	while (!curNode.isValid(instance.capicity, instance.demand)) {
+            curNode = Solution(instance.facility_num, instance.customer_num);
+        }
 	Solution nextNode = hc.nextSolution(curNode, instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 	int curCost = curNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 	int nextCost = nextNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
