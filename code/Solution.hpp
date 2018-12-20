@@ -22,11 +22,11 @@ public:
     // Constructor
     Solution(vector<int> &v, int facilityNum);
     // If solution match the constraint: not over capicity
-    bool isValid(vector<int> &capicity);
+    bool isValid(vector<int> &capicity, vector<int> &demand);
     // Get Facility state: 0-close, 1-open
     vector<int> getFacilityState();
     // Get total cost of this solution
-    int getCost(vector<int> &open, vector<vector<int> > &allocation);
+    int getCost(vector<int> &open, vector<vector<int> > &allocation, vector<int> &capicity, vector<int> &demand);
     
     bool operator == (const Solution &p2) const;
 };
@@ -50,7 +50,7 @@ Solution::Solution(vector<int> &v, int facilityNum) {
     this->serving.resize(facilityNum);
 }
 
-bool Solution::isValid(vector<int> &capicity) {
+bool Solution::isValid(vector<int> &capicity, vector<int> &demand) {
     int size = capicity.size();
     for (int i = 0; i < size; ++i) {
         this->serving[i] = 0;
@@ -58,7 +58,7 @@ bool Solution::isValid(vector<int> &capicity) {
     
     size = this->allocate.size();
     for (int i = 0; i < size; ++i) {
-        this->serving[this->allocate[i]-1] += 1;
+        this->serving[this->allocate[i]-1] += demand[i];
     }
 
 	size = capicity.size();
@@ -85,7 +85,8 @@ vector<int> Solution::getFacilityState() {
     return ans;
 }
 
-int Solution::getCost(vector<int> &open, vector<vector<int> > &allocation) {
+int Solution::getCost(vector<int> &open, vector<vector<int> > &allocation, vector<int> &capicity, vector<int> &demand) {
+	if (!this->isValid(capicity, demand))	return INT_MAX;
     vector<int> temp = this->getFacilityState();
     int cost = 0;
 
