@@ -13,7 +13,11 @@ using std::endl;
 using namespace std;
 
 int main() {
-	//srand (time(NULL));
+	srand (time(NULL));
+	
+//	FILE* result = fopen("result.csv", "w");
+//	fprintf(result, "%s", "Instance Time Cost FacilityState CustomerState");
+	
     int ga_size, ga_crossRate, ga_mutationRate;
     string instancePath;
 
@@ -33,21 +37,24 @@ int main() {
     char c;
     int iteration = 0;
     do {
+    	#if DEBUG
     	cout << "Iteration Times: " << iteration++ << endl;
     	cout << "Selection...";
+    	#endif
         ga.Selection(instance.open_cost, instance.allocate_cost);
-        cout << "done!" << endl;
-		
-		cout << "Cross Over...";
-		ga.CrossOver(instance.capicity);
+        #if DEBUG
 		cout << "done!" << endl;
 		
-		cout << "Mutation...";
-        ga.Mutation(instance.capicity);
-        cout << "done!" << endl;
-        
+		cout << "Iterating...";
+		#endif
+		ga.CrossAndMutate(instance.capicity, instance.open_cost, instance.allocate_cost);
+		#if DEBUG
+		cout << "done!" << endl;
+		#endif
+		
         cout << "Best Solution: ";
 		cout << ga.bestSolution(instance.open_cost, instance.allocate_cost).getCost(instance.open_cost, instance.allocate_cost); 
 		cout << endl;
-    } while(cin.get() == '\n');
+		iteration++;
+    } while(iteration < 100000);
 }

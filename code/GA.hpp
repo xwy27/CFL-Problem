@@ -1,6 +1,8 @@
 #ifndef GENEALGORITHM
 #define GENEALGORITHM
 
+#define DEBUG false
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -27,9 +29,9 @@ public:
     // Select from population
     void Selection(vector<int> &open, vector<vector<int> > &allocate);
     // CrossOver within selection
-    void CrossOver(vector<int> &capicity);
+    void CrossAndMutate(vector<int> &capicity, vector<int> &open, vector<vector<int> > &allocate);
     // Mutate within generation
-    void Mutation(vector<int> &capicity);
+    vector<int>& Mutation(vector<int> &g);
     // Get the best Solution in population
     Solution bestSolution(vector<int> &open, vector<vector<int> > &allocate);
 };
@@ -52,87 +54,87 @@ GeneAlgorithm::GeneAlgorithm(int size, int crossRate, int mutationRate,
 }
 
 void GeneAlgorithm::Selection(vector<int> &open, vector<vector<int> > &allocate) {
-	//srand((unsigned)time(NULL));
     int size = this->selection.size();
+    int population_size = this->population.size();
+    vector<bool> visited(population_size, 0);
     int l = 0, r = 0;
-    for (int i = 0; i < size; ++i) {
-        l = rand() % size;
-        r = rand() % size;
-        while (r == l) {
-            r = rand() % size;
-        }
+    this->selection[0] = this->bestSolution(open, allocate);
+    for (int i = 1; i < size; ++i) {
+        l = rand() % population_size;
+        while (visited[l])	l = rand() % population_size;
+		r = rand() % population_size;
+        while (r == l || visited[r])	r = rand() % population_size;
         this->selection[i] = (this->population[l].getCost(open, allocate) > this->population[r].getCost(open, allocate) ?
             this->population[r] : this->population[l]);
     }
 }
 
-void GeneAlgorithm::CrossOver(vector<int> &capicity) {
-	//srand((unsigned)time(NULL));
+void GeneAlgorithm::CrossAndMutate(vector<int> &capicity, vector<int> &open, vector<vector<int> > &allocate) {
     int f = 0, m = 0, p = 0, temp = 0, l = 0, r = 0;
     int size = this->selection.size();
-    int i = 0;
+    int i = 0, tryCnt = 0;
     while (i < size) {
-        f = rand() % size;
-        m = rand() % size;
-        while(m == f) {
-            m = rand() % size;
-        }
-        p = rand() % 100;
+		f = i;
+		m = i + 1;
+    	p = rand() % 100;
         if (p <= this->crossRate) {
-            l = rand() % this->selection[f].allocate.size();
-            r = l + rand() % (this->selection[f].allocate.size() - l + 1);
-			//l = this->selection[f].allocate.size() / 2;
-            vector<int> g1;
-            vector<int> g2;
+        	l = rand() % (this->selection[f].allocate.size());
+        	r = rand() % (this->selection[f].allocate.size());
+			if (l > r)	std::swap(l, r);
+			vector<int> g1;
+			vector<int> g2;
             for (int j = 0; j < this->selection[f].allocate.size(); ++j) {
-                if (j < l) {
+                if (l <= j && j <= r) {
+					g1.push_back(this->selection[m].allocate[j]);
+					g2.push_back(this->selection[f].allocate[j]);
+                } else {
                     g1.push_back(this->selection[f].allocate[j]);
                     g2.push_back(this->selection[m].allocate[j]);
-                } else {
-                    g1.push_back(this->selection[m].allocate[j]);
-                    g2.push_back(this->selection[f].allocate[j]);
                 }
             }
+            g1 = this->Mutation(g1);
+            g2 = this->Mutation(g2);
             Solution s1(g1, (int)(this->selection[f].serving.size()));
             Solution s2(g2, (int)(this->selection[f].serving.size()));
-            if (!s1.isValid(capicity) || !s2.isValid(capicity)) {
-                continue;
+            if (!s1.isValid(capicity) && !s2.isValid(capicity)) {
+                tryCnt += 1;
+                if (tryCnt < 1000)  continue;
             }
             this->generation[i] = s1;
-            this->generation[i+1] = s2;
-            i += 2;
-        }
-    }
-}
-
-void GeneAlgorithm::Mutation(vector<int> &capicity) {
-	//srand((unsigned)time(NULL));
-    int p = 0, l = 0, r = 0;
-    int size = this->generation.size();
-    for (int i = 0; i < size; ++i) {
-        p = rand() % 100;
-        if (p <= this->mutationRate) {
-            vector<int> temp = this->generation[i].allocate;
-            l = rand() % (this->generation[i].allocate.size());
-            r = l + rand() % (this->generation[i].allocate.size() - l + 1);
-            for (int j = l; j < r; ++j) {
-                this->generation[i].allocate[j] = 1 + rand() % this->generation[i].serving.size();
-            }
-            if (!this->generation[i].isValid(capicity)) {
-                this->generation[i].allocate = temp;
-            }
-        }
+            this->generation[i+1] = s1;
+			i += 2;
+		}
     }
 
-    int index = 0, max_size = this->population.size();
+    int index = 0;
     for (int i = 0; i < this->selection.size(); ++i) {
         this->population[index++] = this->selection[i];
     }
 
-    for (int i = 0; this->generation.size(); ++i) {
-    	if (index >= max_size)	break;
+    for (int i = 0; i < this->generation.size(); ++i) {
         this->population[index++] = this->generation[i];
     }
+    
+    std::random_shuffle(this->population.begin(), this->population.end());
+    #if DEBUG
+	for (int i = 0; i < this->population.size(); ++i) {
+    	cout << "population-" << i << ":" << this->population[i].getCost(open, allocate) << endl;
+    }
+	#endif
+}
+
+vector<int>& GeneAlgorithm::Mutation(vector<int> &g) {
+    int p = 0, l = 0, temp = 0;
+    int size = g.size();
+    for (int i = 0; i < size; ++i) {
+        p = rand() % 100;
+        if (p < this->mutationRate) {
+            l = rand() % (g.size());
+            temp = g[l];
+            g[l] = 1 + rand() % (this->selection[0].serving.size());
+		}
+    }
+    return g;
 }
 
 Solution GeneAlgorithm::bestSolution(vector<int> &open, vector<vector<int> > &allocate) {

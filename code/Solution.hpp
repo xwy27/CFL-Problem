@@ -34,7 +34,6 @@ public:
 Solution::Solution() {}
 
 Solution::Solution(int &facilityNum, int &customerNum) {
-	//srand((unsigned)time(NULL));
     this->allocate.resize(customerNum);
     for (int i = 0; i < customerNum; ++i) {
         this->allocate[i] = 1 + rand() % facilityNum;
@@ -43,11 +42,10 @@ Solution::Solution(int &facilityNum, int &customerNum) {
 }
 
 Solution::Solution(vector<int> &v, int facilityNum) {
-	//srand((unsigned)time(NULL));
     int size = v.size();
     this->allocate.resize(size);
     for (int i = 0; i < size; ++i) {
-        this->allocate[i] = 1 + rand() % facilityNum;
+        this->allocate[i] = v[i];
     }
     this->serving.resize(facilityNum);
 }
@@ -58,10 +56,12 @@ bool Solution::isValid(vector<int> &capicity) {
         this->serving[i] = 0;
     }
     
+    size = this->allocate.size();
     for (int i = 0; i < size; ++i) {
         this->serving[this->allocate[i]-1] += 1;
     }
 
+	size = capicity.size();
     for (int i = 0; i < size; ++i) {
         if (this->serving[i] > capicity[i]) {
             return false;
