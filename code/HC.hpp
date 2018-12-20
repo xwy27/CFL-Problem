@@ -9,7 +9,7 @@
 #include <ctime>
 #include "Solution.hpp"
 
-#define DEBUG true
+#define DEBUG false
 
 using std::cout;
 using std::endl;
@@ -70,7 +70,7 @@ vector<Solution> HC::neighborHood(Solution &s) {
 	#endif
     vector<Solution> neighbor;
     neighbor.push_back(this->reverseOpt(s));
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 5000; ++i) {
         neighbor.push_back(this->twoOpt(s));
         neighbor.push_back(this->threeOpt(s));
         neighbor.push_back(this->randomOpt(s));

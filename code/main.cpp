@@ -38,12 +38,12 @@ int main() {
 	fprintf(resultHC, "%s\n", "Instance,Time,Cost,FacilityState,CustomerState");	
 	
 	string filePath;
-	for (int i = 1; i <= 10; ++i) {
+	for (int i = 1; i <= 71; ++i) {
 		cout << "START Read File..." << endl;
 		string instancePath = "../Instance/p" + std::to_string(i);
 		Instance instance(instancePath);
 		performHC(instance, i, resultHC);
-		//performGA(instance, i, resultGA, ga_size, ga_crossRate, ga_mutationRate);
+		performGA(instance, i, resultGA, ga_size, ga_crossRate, ga_mutationRate);
 	}
 
 	fclose(resultGA);
@@ -79,7 +79,7 @@ void performGA(Instance &instance, int index, FILE* result, int ga_size, int ga_
 			ans = temp;
 			min_cost = cost;
 			iteration = 0;
-			cout << "Best Solution-" << index << ": " << min_cost << endl;
+			cout << "GA-Best Solution-" << index << ": " << min_cost << endl;
 		} else {
 			iteration++;
 		}
@@ -108,20 +108,20 @@ void performHC(Instance &instance, int index, FILE* result) {
 	int curCost = curNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 	int nextCost = nextNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 	while (curCost > nextCost) {
-		cout << "HC-BestSolution-" << index << ": " << nextCost << endl; 
+		cout << "HC-Best Solution-" << index << ": " << nextCost << endl; 
 		curNode = nextNode;
 		nextNode = hc.nextSolution(curNode, instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 		curCost = curNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 		nextCost = nextNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 	}
 	
-//	string fs = "";
-//    for (auto &i : curNode.getFacilityState()) {
-//    	fs += to_string(i) + " ";
-//	}
-//	string cs = "";
-//	for (auto &i : curNode.allocate) {
-//		cs += to_string(i) + " ";
-//	}
-//    fprintf(result, "%d,%f,%d,%s,%s\n", index, (difftime(time(nullptr), start)), curCost, fs.c_str(), cs.c_str());
+	string fs = "";
+    for (auto &i : curNode.getFacilityState()) {
+    	fs += to_string(i) + " ";
+	}
+	string cs = "";
+	for (auto &i : curNode.allocate) {
+		cs += to_string(i) + " ";
+	}
+    fprintf(result, "%d,%f,%d,%s,%s\n", index, (difftime(time(nullptr), start)), curCost, fs.c_str(), cs.c_str());
 }
