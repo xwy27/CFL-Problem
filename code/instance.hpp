@@ -11,6 +11,16 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+// Initialize an instance from instance file and 
+// contains the info inside the instance file
+// Example:
+//		Instance instance(filePath);
+//		int facilityNum = instance.facilityNum;
+//		int customerNum = instance.customerNum;
+//		vector<int> capicity = instance.capicity;
+//		vector<int> open_cost = instance.open_cost;
+//		vector<int> deamnd = instance.deamnd;
+//		vector<vector<int> > allocate_cost = instance.allocate_cost;
 class Instance {
 public:
     int facility_num;   // facility number
@@ -20,9 +30,13 @@ public:
     vector<int> demand; // demand of customers
     vector<vector<int> > allocate_cost; // allocate cost of facilities
 
-    Instance(string filePath);
+    Instance(string filePath);	// Constructor
 };
 
+// Construct an instance from an instance file.
+// <Param>
+//		string filePath: the path of the instance file
+// </Param>
 Instance::Instance(string filePath) {
     FILE* fp = fopen(filePath.c_str(), "r");
     if (fp == nullptr) {

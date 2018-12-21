@@ -16,17 +16,34 @@ using std::endl;
 using std::vector;
 using std::string;
 
+// Initialize an instance of Hill Climbing Algorithm which could be performed on an instance
+// The neighborhood is calculated from four operations:
+//      1. Swap two allocations between two random chosen customer
+//      2. Reorder the allocations among three continuous customers(e.g: a, b, c-> b, c, a)
+//      3. Randomly rearrange the allocations with the current allocations
+//      4. Reverse the allocations
+// Example:
+//      HC hc;
+//      Solution nextNode = nextSolution(solution, openCost, allocationCost, capicity, demand);
 class HC {
 public:
-    Solution twoOpt(Solution &s);
-    Solution threeOpt(Solution &s);
-    Solution randomOpt(Solution &s);
-    Solution reverseOpt(Solution &s);
-    vector<Solution> neighborHood(Solution &s);
+    Solution twoOpt(Solution &s);   // Swap two allocations between two random chosen customer
+    Solution threeOpt(Solution &s); // Reorder the allocations among three continuous customers(e.g: a, b, c-> b, c, a)
+    Solution randomOpt(Solution &s);    // Randomly rearrange the allocations with the current allocations
+    Solution reverseOpt(Solution &s);   // Reverse the allocations
+    vector<Solution> neighborHood(Solution &s); // Generate the neighborhood
     Solution nextSolution(Solution &s, vector<int> &open, vector<vector<int> > &allocation,
-        vector<int> &capicity, vector<int> &demand);
+        vector<int> &capicity, vector<int> &demand);    // Find the best solution in neighborhood
 };
 
+// Performs swaping two allocations on a solution and
+// returns the generated solution.
+// <Param>
+// 		Solution &s: the solution to be performed on
+// </Param>
+// <Return>
+//		Solution: the generated solution
+// </Return>
 Solution HC::twoOpt(Solution &s) {
     int size = s.allocate.size();
     if (size == 0)  return Solution();
@@ -39,6 +56,14 @@ Solution HC::twoOpt(Solution &s) {
     return ans;
 }
 
+// Performs reordering three allocations on a solution and
+// returns the generated solution.
+// <Param>
+// 		Solution &s: the solution to be performed on
+// </Param>
+// <Return>
+//		Solution: the generated solution
+// </Return>
 Solution HC::threeOpt(Solution &s) {
     int size = s.allocate.size();
     if (size == 0)  return Solution();
@@ -50,6 +75,14 @@ Solution HC::threeOpt(Solution &s) {
     return ans;
 }
 
+// Performs randomly arranging on a solution and
+// returns the generated solution.
+// <Param>
+// 		Solution &s: the solution to be performed on
+// </Param>
+// <Return>
+//		Solution: the generated solution
+// </Return>
 Solution HC::randomOpt(Solution &s) {
     vector<int> temp(s.allocate.begin(), s.allocate.end());
     std::random_shuffle(temp.begin(), temp.end());
@@ -57,6 +90,14 @@ Solution HC::randomOpt(Solution &s) {
     return ans;
 }
 
+// Performs reversing allocations on a solution and
+// returns the generated solution.
+// <Param>
+// 		Solution &s: the solution to be performed on
+// </Param>
+// <Return>
+//		Solution: the generated solution
+// </Return>
 Solution HC::reverseOpt(Solution &s) {
     vector<int> temp(s.allocate.begin(), s.allocate.end());
     std::reverse(temp.begin(), temp.end());
@@ -64,6 +105,14 @@ Solution HC::reverseOpt(Solution &s) {
     return ans;
 }
 
+// Performs generating neighborhood on a solution and
+// returns the neighborhood.
+// <Param>
+// 		Solution &s: the solution to be performed on
+// </Param>
+// <Return>
+//		vector<Solution>: the generated neighborhood
+// </Return>
 vector<Solution> HC::neighborHood(Solution &s) {
 	#if DEBUG
 	cout << "Generate Neighbor" << endl;
@@ -78,6 +127,18 @@ vector<Solution> HC::neighborHood(Solution &s) {
     return neighbor;
 }
 
+// Performs finding the 'best' solution in the neighborhood on a solution and
+// returns the generated solution.
+// <Param>
+// 		Solution &s: the solution to be performed on
+//      vector<int> &open: the open cost of facilities
+//      vector<vector<int> > &allocation: the allocation cost of customers to facilities
+//      vector<int> &capicity: the capicity of facilities
+//      vector<int> &demand: the demand of customers
+// </Param>
+// <Return>
+//		Solution: the generated solution
+// </Return>
 Solution HC::nextSolution(Solution &s, vector<int> &open, vector<vector<int> > &allocation,
     vector<int> &capicity, vector<int> &demand) {
     #if DEBUG

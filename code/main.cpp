@@ -50,6 +50,19 @@ int main() {
 	fclose(resultHC);
 }
 
+// Performs Genetic Algorithm on an instance and find the 'best' solution.
+// Finally, it writes the solution into the result file.
+// <Param>
+// 		Instance &instance: the instance of the instance file
+//		int index: the instance index
+//		FILE *result: the result file to be written
+//		int ga_size: the population size
+//		int ga_crossRate: the cross over rate(1-100)
+//		int ga_mutationRate: the mutation rate(1-100)
+// </Param>
+// <Return>
+//		Void
+// </Return>
 void performGA(Instance &instance, int index, FILE* result, int ga_size, int ga_crossRate, int ga_mutationRate) {    
     time_t start = time(nullptr);
 	cout << "START GA..." << endl;
@@ -60,6 +73,7 @@ void performGA(Instance &instance, int index, FILE* result, int ga_size, int ga_
     int iteration = 0, min_cost = INT_MAX, cost = 0;
     do {
     	#if DEBUG
+		// Debug mode with info log
     	cout << "Iteration Times: " << iteration++ << endl;
     	cout << "Selection...";
 		ga.Selection(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
@@ -69,13 +83,15 @@ void performGA(Instance &instance, int index, FILE* result, int ga_size, int ga_
 		cout << "done!" << endl;
 
 		#else
+		// No debug mode, no info log
     	ga.Selection(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 		ga.CrossAndMutate(instance.capicity, instance.open_cost, instance.allocate_cost, instance.demand);
 		#endif
 		
+		// Get the best solution in one iteration
         temp = ga.bestSolution(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
         cost = temp.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
-		if (min_cost > cost) {
+		if (min_cost > cost) {	// A new lower cost
 			ans = temp;
 			min_cost = cost;
 			iteration = 0;
@@ -83,30 +99,51 @@ void performGA(Instance &instance, int index, FILE* result, int ga_size, int ga_
 		} else {
 			iteration++;
 		}
-    } while(iteration < 10000);
+    } while(iteration < 10000);	// Iterating to find answer with 10000 times if a new ans occurs
     
+	// Facility states
     string fs = "";
     for (auto &i : ans.getFacilityState()) {
     	fs += to_string(i) + " ";
 	}
+
+	// Customer allocations
 	string cs = "";
 	for (auto &i : ans.allocate) {
 		cs += to_string(i) + " ";
 	}
+
+	// Write result
     fprintf(result, "%d,%f,%d,%s,%s\n", index, (difftime(time(nullptr), start)), min_cost, fs.c_str(), cs.c_str());
 }
 
+// Performs Hill Climbing Algorithm on an instance and find the 'best' solution.
+// Finally, it writes the solution into the result file.
+// <Param>
+// 		Instance &instance: the instance of the instance file
+//		int index: the instance index
+//		FILE *result: the result file to be written
+// </Param>
+// <Return>
+//		Void
+// </Return>
 void performHC(Instance &instance, int index, FILE* result) {
 	HC hc;
 	time_t start = time(nullptr);
 	cout << "Start HC..." << endl;
+	
+	// Find a valid initial solution
 	Solution curNode(instance.facility_num, instance.customer_num);
 	while (!curNode.isValid(instance.capicity, instance.demand)) {
-            curNode = Solution(instance.facility_num, instance.customer_num);
-        }
+		curNode = Solution(instance.facility_num, instance.customer_num);
+	}
+
+	// Find next solution which has the lowest cost in neighborhood
 	Solution nextNode = hc.nextSolution(curNode, instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
+	
 	int curCost = curNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 	int nextCost = nextNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
+	// Loop finding the better solution from neighborhood until no better solution
 	while (curCost > nextCost) {
 		cout << "HC-Best Solution-" << index << ": " << nextCost << endl; 
 		curNode = nextNode;
@@ -115,13 +152,18 @@ void performHC(Instance &instance, int index, FILE* result) {
 		nextCost = nextNode.getCost(instance.open_cost, instance.allocate_cost, instance.capicity, instance.demand);
 	}
 	
+	// Facility States
 	string fs = "";
     for (auto &i : curNode.getFacilityState()) {
     	fs += to_string(i) + " ";
 	}
+
+	// Customer Allocations
 	string cs = "";
 	for (auto &i : curNode.allocate) {
 		cs += to_string(i) + " ";
 	}
+
+	// Write to file
     fprintf(result, "%d,%f,%d,%s,%s\n", index, (difftime(time(nullptr), start)), curCost, fs.c_str(), cs.c_str());
 }
