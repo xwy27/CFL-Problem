@@ -12,7 +12,7 @@ The objective is to minimize the sum of the opening cost and the assignment cost
 
 The total demand assigned to a facility must not exceed its capacity.
 
-There are currently 71 data files. The format of these data files is:
+There are currently 71 data files. 
 
 ## Instance
 

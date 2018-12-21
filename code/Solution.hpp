@@ -11,6 +11,18 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+// Initialize an instance of solution which contains the allocation of customers
+// Example:
+//		Solution s1;
+//      Solution s2(facilityNum, customerNum);
+//      Solution s3(v, facilityNum);
+//
+//      vector<int> facilityState = s2.getFacilityState();
+//      int cost = s3.getCost(openCost, allocationCost, capicity, demand);
+//      
+//      if (s1.isValid(capicity, demand)) {
+//          // do something
+//      }
 class Solution {
 public:
     vector<int> allocate; // Allocation of all customers
@@ -31,8 +43,14 @@ public:
     bool operator == (const Solution &p2) const;
 };
 
+// Construct an instance from an instance file.
 Solution::Solution() {}
 
+// Construct an instance from an instance file.
+// <Param>
+//		int &facilityNum: number of facilities
+//      int &customerNum: number of customers
+// </Param>
 Solution::Solution(int &facilityNum, int &customerNum) {
     this->allocate.resize(customerNum);
     for (int i = 0; i < customerNum; ++i) {
@@ -41,6 +59,11 @@ Solution::Solution(int &facilityNum, int &customerNum) {
     this->serving.resize(facilityNum);
 }
 
+// Construct an instance from an instance file.
+// <Param>
+//      vector<int> &v: array of allocations
+//		int &facilityNum: number of facilities
+// </Param>
 Solution::Solution(vector<int> &v, int facilityNum) {
     int size = v.size();
     this->allocate.resize(size);
@@ -50,6 +73,15 @@ Solution::Solution(vector<int> &v, int facilityNum) {
     this->serving.resize(facilityNum);
 }
 
+// Determine if the solution is valid, which is 
+// the allocated demand of a facility is no more than its capicity
+// <Param>
+//      vector<int> &capicity: capicity of facilities
+//      vector<int> &demand: demand of customers
+// </Param>
+// <Return>
+//		bool: true for valid, otherwise false
+// </Return>
 bool Solution::isValid(vector<int> &capicity, vector<int> &demand) {
     int size = capicity.size();
     for (int i = 0; i < size; ++i) {
@@ -71,6 +103,10 @@ bool Solution::isValid(vector<int> &capicity, vector<int> &demand) {
     return true;
 }
 
+// Get the facility state(open or close)
+// <Return>
+//		vector<int>: v[i] = 1 for open, otherwise close
+// </Return>
 vector<int> Solution::getFacilityState() {
     vector<int> ans;
     int size = this->serving.size();
@@ -85,6 +121,16 @@ vector<int> Solution::getFacilityState() {
     return ans;
 }
 
+// Get the cost of the solution
+// <Param>
+//      vector<int> &open: open cost of the facilities
+//       vector<vector<int> > &allocation: allocation cost
+//       vector<int> &capicity: capicity of facilities
+//       vector<int> &demand: demand of customers
+// </Param>
+// <Return>
+//		int: cost of the solution
+// </Return>
 int Solution::getCost(vector<int> &open, vector<vector<int> > &allocation, vector<int> &capicity, vector<int> &demand) {
 	if (!this->isValid(capicity, demand))	return INT_MAX;
     vector<int> temp = this->getFacilityState();
